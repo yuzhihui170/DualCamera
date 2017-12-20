@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '26.0.2'
+
+    defaultConfig {
+        applicationId "com.serenegiant.dualcamera"
+        minSdkVersion 21
+        targetSdkVersion 23
+        versionCode 9
+        versionName "3.00"
+        vectorDrawables.useSupportLibrary = true
+        ndk {
+            //abiFilters 'x86', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+            abiFilters 'armeabi-v7a'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+    }
+    compileOptions {
+    }
+}
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:design:25.4.0'
+    compile("com.serenegiant:common:1.5.20") {
+        exclude module: 'support-v4'
+    }
+    compile project(':libuvccamera')
+}
