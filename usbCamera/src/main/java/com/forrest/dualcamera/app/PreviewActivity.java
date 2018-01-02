@@ -68,8 +68,8 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 
 	private int mWidthL = 1920; // Sonix(凹) mProductName=V930AF ["2592x1944","2048x1536","1920x1080","1600x1200","1280x720","1024x768","800x600","640x480","2592x1944"]
 	private int mHeightL = 1080;
-	private int mWidthR = 800;  // Etron(平) mProductName=Camera33 ["640x480","800x600","1280x1024","1600x1200","2048x1536"]
-	private int mHeightR = 600;
+	private int mWidthR = 640;  // Etron(平) mProductName=Camera33 ["160x120","320x240","352x288","640x360","1280x720"]
+	private int mHeightR = 360;
 	private int mRecordTime = 5;
 
 	private boolean mSurfaceCreatefinish = false;
@@ -234,7 +234,6 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 			mWidthL = 1920;
 			mHeightL = 1080;
 		}
-
 		mSharedPreferences.getInt(Constant.KEY_RECORD_TIME, 5);
 	}
 
@@ -343,7 +342,7 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 					}
 				}
 			}
-			if (!mHandlerR.isOpened() /*&& device.getProductName().trim().equals(Constant.CAMERA_PRODUCT_NAME_FOR_RECORD)*/) {
+			if (!mHandlerR.isOpened() && device.getProductName().trim().equals(Constant.CAMERA_PRODUCT_NAME_FOR_RECORD)) {
 				if (DEBUG) Log.v(TAG, "onConnect: mHandler R");
 				mHandlerR.open(ctrlBlock);
 				final SurfaceTexture st = mUVCCameraViewR.getSurfaceTexture();

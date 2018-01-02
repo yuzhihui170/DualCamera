@@ -232,9 +232,9 @@ public class CameraDialog extends DialogFragment {
 			if (convertView instanceof CheckedTextView) {
 				final UsbDevice device = getItem(position);
 				String text;
-				if (device.getProductName().trim().equals("V930AF")) { //"V930AF";
+				if (device.getProductName().trim().equals("USB 2.0 Camera")) { //"V930AF";
 					text = "选择拍照相机";
-				} else if (device.getProductName().trim().equals("Camera33")) {  // "Camera33"
+				} else if (device.getProductName().trim().equals("Laptop_Integrated_Webcam_FHD")) {  // "Camera33"
 					text = "选择录像相机";
 				} else {
 					text = "未知的相机类型";
