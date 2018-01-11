@@ -77,6 +77,12 @@ public class UVCCameraGLSurfaceView extends GLSurfaceView {
 //        mRenderer.onPause();
     }
 
+    /**
+     * 开启录像
+     * @param width 宽
+     * @param height 高
+     * @param mp4Path 保存路径
+     */
     public void startRecord(int width, int height, String mp4Path) {
         if(mRecordingStatus == RECORDING_ON) {
             return ;
@@ -103,6 +109,12 @@ public class UVCCameraGLSurfaceView extends GLSurfaceView {
         }
     }
 
+    /**
+     * 拍照
+     * @param width 宽
+     * @param height 高
+     * @param picturePath 保存路径
+     */
     public void takePicture(int width, int height, String picturePath) {
         this.mPictureWidth = width;
         this.mPictureHeight = height;

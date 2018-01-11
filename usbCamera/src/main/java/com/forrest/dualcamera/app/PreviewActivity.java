@@ -54,22 +54,25 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
     // for accessing USB and USB camera
     private USBMonitor mUSBMonitor;
 
-	private FrameLayout mLayoutR;
-	private UVCCameraHandlerSimple mHandlerR;
-	private UVCCameraGLSurfaceView mUVCCameraViewR;
-	private ImageButton mCaptureButtonR;
-	private Surface mRightPreviewSurface;
+	private FrameLayout mLayoutRecord;
+	private UVCCameraHandlerSimple mHandlerRecord;
+	private UVCCameraGLSurfaceView mUVCCameraViewRecord;
+	private ImageButton mButtonRecord;
+	private Surface mPreviewSurfaceRecord;
 
-	private FrameLayout mLayoutL;
-	private UVCCameraHandlerSimple mHandlerL;
-	private UVCCameraGLSurfaceView mUVCCameraViewL;
-	private ImageButton mCaptureButtonL;
-	private Surface mLeftPreviewSurface;
+	private FrameLayout mLayoutPicture;
+	private UVCCameraHandlerSimple mHandlerPicture;
+	private UVCCameraGLSurfaceView mUVCCameraViewPicture;
+	private ImageButton mButtonPicture;
+	private Surface mPreviewSurfacePicture;
 
-	private int mWidthL = 1920; // Sonix(凹) mProductName=V930AF ["2592x1944","2048x1536","1920x1080","1600x1200","1280x720","1024x768","800x600","640x480","2592x1944"]
-	private int mHeightL = 1080;
-	private int mWidthR = 640;  // Etron(平) mProductName=Camera33 ["160x120","320x240","352x288","640x360","1280x720"]
-	private int mHeightR = 360;
+	//用来拍照的摄像头分辨率
+	private int mWidthPicture = 1920; // Sonix(凹) mProductName=V930AF ["2592x1944","2048x1536","1920x1080","1600x1200","1280x720","1024x768","800x600","640x480","2592x1944"]
+	private int mHeightPicture = 1080;
+	
+	//用来录像的摄像头分辨率
+	private int mWidthRecord = 1920;  // Etron(平) mProductName=Camera33 ["160x120","320x240","352x288","640x360","1280x720"]
+	private int mHeightRecord = 1080;
 	private int mRecordTime = 5;
 
 	private boolean mSurfaceCreatefinish = false;
@@ -92,7 +95,7 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_preview);
 		initView();
-		getPreferences();
+//		getPreferences();
 		mHandler = new MyHandler(this);
 		Log.d(TAG, "[PreviewActivity] : onCreate");
 	}
@@ -101,26 +104,26 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 	protected void onStart() {
 		super.onStart();
 
-		mLayoutL = (FrameLayout) findViewById(R.id.camera_layout_L);
-		mUVCCameraViewL = new UVCCameraGLSurfaceView(this); //(UVCCameraTextureView)findViewById(R.id.camera_view_L);
-		mUVCCameraViewL.setAspectRatio((float)mWidthL / (float)mHeightL);
-		mUVCCameraViewL.setSurfaceListener(mySurfaceListener);
-		mLayoutL.addView(mUVCCameraViewL);
-		mCaptureButtonL = (ImageButton)findViewById(R.id.capture_button_L);
-		mCaptureButtonL.setOnClickListener(mOnClickListener);
-		mCaptureButtonL.setVisibility(View.INVISIBLE);
-		mHandlerL = UVCCameraHandlerSimple.createHandler(this,  mWidthL, mHeightL, UVCCamera.FRAME_FORMAT_MJPEG, BANDWIDTH_FACTORS[0]);
+		mLayoutPicture = (FrameLayout) findViewById(R.id.camera_layout_L);
+		mUVCCameraViewPicture = new UVCCameraGLSurfaceView(this); //(UVCCameraTextureView)findViewById(R.id.camera_view_L);
+		mUVCCameraViewPicture.setAspectRatio((float) mWidthPicture / (float) mHeightPicture);
+		mUVCCameraViewPicture.setSurfaceListener(mySurfaceListener);
+		mLayoutPicture.addView(mUVCCameraViewPicture);
+		mButtonPicture = (ImageButton)findViewById(R.id.capture_button_L);
+		mButtonPicture.setOnClickListener(mOnClickListener);
+		mButtonPicture.setVisibility(View.INVISIBLE);
+		mHandlerPicture = UVCCameraHandlerSimple.createHandler(this, mWidthPicture, mHeightPicture, UVCCamera.FRAME_FORMAT_MJPEG, BANDWIDTH_FACTORS[0]);
 
-		mLayoutR = (FrameLayout) findViewById(R.id.camera_layout_R);
-		mUVCCameraViewR = new UVCCameraGLSurfaceView(this); // (CameraViewInterface)findViewById(R.id.camera_view_R);
-		mUVCCameraViewR.setAspectRatio(mWidthR / (float)mHeightR);
-		mUVCCameraViewR.setSurfaceListener(mySurfaceListener);
-		mLayoutR.addView(mUVCCameraViewR);
-		mCaptureButtonR = (ImageButton)findViewById(R.id.capture_button_R);
-		mCaptureButtonR.setOnClickListener(mOnClickListener);
-		mCaptureButtonR.setVisibility(View.INVISIBLE);
-//		mHandlerR = UVCCameraHandler.createHandler(this, mUVCCameraViewR, mWidthR, mHeightR, BANDWIDTH_FACTORS[1]);
-		mHandlerR = UVCCameraHandlerSimple.createHandler(this,  mWidthR, mHeightR, UVCCamera.FRAME_FORMAT_MJPEG, BANDWIDTH_FACTORS[1]);
+		mLayoutRecord = (FrameLayout) findViewById(R.id.camera_layout_R);
+		mUVCCameraViewRecord = new UVCCameraGLSurfaceView(this); // (CameraViewInterface)findViewById(R.id.camera_view_R);
+		mUVCCameraViewRecord.setAspectRatio(mWidthRecord / (float)mHeightRecord);
+		mUVCCameraViewRecord.setSurfaceListener(mySurfaceListener);
+		mLayoutRecord.addView(mUVCCameraViewRecord);
+		mButtonRecord = (ImageButton)findViewById(R.id.capture_button_R);
+		mButtonRecord.setOnClickListener(mOnClickListener);
+		mButtonRecord.setVisibility(View.INVISIBLE);
+//		mHandlerRecord = UVCCameraHandler.createHandler(this, mUVCCameraViewRecord, mWidthRecord, mHeightRecord, BANDWIDTH_FACTORS[1]);
+		mHandlerRecord = UVCCameraHandlerSimple.createHandler(this,  mWidthRecord, mHeightRecord, UVCCamera.FRAME_FORMAT_MJPEG, BANDWIDTH_FACTORS[1]);
 
 		mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
 
@@ -131,11 +134,11 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 		for (int i=0; i<list.size(); i++) {
 			mUSBMonitor.requestPermission(list.get(i));
 		}
-		if (mUVCCameraViewL != null) {
-			mUVCCameraViewL.onResume();
+		if (mUVCCameraViewPicture != null) {
+			mUVCCameraViewPicture.onResume();
 		}
-		if (mUVCCameraViewR != null) {
-			mUVCCameraViewR.onResume();
+		if (mUVCCameraViewRecord != null) {
+			mUVCCameraViewRecord.onResume();
 		}
 		Log.d(TAG, "[PreviewActivity] : onStart");
 	}
@@ -157,45 +160,45 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
         Log.d(TAG, "[PreviewActivity] : 0");
 		super.onStop();
         Log.d(TAG, "[PreviewActivity] : 1");
-		mHandlerR.close();
-		if (mUVCCameraViewR != null) {
-			mUVCCameraViewR.onPause();
+		mHandlerRecord.close();
+		if (mUVCCameraViewRecord != null) {
+			mUVCCameraViewRecord.onPause();
 		}
         Log.d(TAG, "[PreviewActivity] : 2");
-		mCaptureButtonR.setVisibility(View.INVISIBLE);
+		mButtonRecord.setVisibility(View.INVISIBLE);
 
 		mCHRecordTime.stop();
 		mCHRecordTime.setVisibility(View.INVISIBLE);
         Log.d(TAG, "[PreviewActivity] : 3");
-        mHandlerL.close();
-		if (mUVCCameraViewL != null) {
-			mUVCCameraViewL.onPause();
+        mHandlerPicture.close();
+		if (mUVCCameraViewPicture != null) {
+			mUVCCameraViewPicture.onPause();
 		}
-		mCaptureButtonL.setVisibility(View.INVISIBLE);
+		mButtonPicture.setVisibility(View.INVISIBLE);
 		mUSBMonitor.unregister();
         Log.d(TAG, "[PreviewActivity] : 4");
-		mLayoutL.removeView(mUVCCameraViewL);
-		mLayoutR.removeView(mUVCCameraViewR);
+		mLayoutPicture.removeView(mUVCCameraViewPicture);
+		mLayoutRecord.removeView(mUVCCameraViewRecord);
 		Log.d(TAG, "[PreviewActivity] : onStop");
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if (mHandlerR != null) {
-			mHandlerR = null;
+		if (mHandlerRecord != null) {
+			mHandlerRecord = null;
   		}
-		if (mHandlerL != null) {
-			mHandlerL = null;
+		if (mHandlerPicture != null) {
+			mHandlerPicture = null;
   		}
 		if (mUSBMonitor != null) {
 			mUSBMonitor.destroy();
 			mUSBMonitor = null;
 		}
-		mUVCCameraViewR = null;
-		mCaptureButtonR = null;
-		mUVCCameraViewL = null;
-		mCaptureButtonL = null;
+		mUVCCameraViewRecord = null;
+		mButtonRecord = null;
+		mUVCCameraViewPicture = null;
+		mButtonPicture = null;
 		Log.d(TAG, "[PreviewActivity] : onDestroy");
 	}
 
@@ -213,26 +216,26 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 		mSharedPreferences = getSharedPreferences(Constant.APP_NAME, Context.MODE_PRIVATE);
 		String recordSize = mSharedPreferences.getString(Constant.KEY_RECORD_SIZE, Constant.VALUE_SIZE_480P);
 		if (recordSize.equals(Constant.VALUE_SIZE_480P)) {
-			mWidthR = 640;
-			mHeightR = 480;
+			mWidthRecord = 640;
+			mHeightRecord = 480;
 		} else if (recordSize.equals(Constant.VALUE_SIZE_600P)) {
-			mWidthR = 800;
-			mHeightR = 600;
+			mWidthRecord = 800;
+			mHeightRecord = 600;
 		}
 
 		String pictureSize = mSharedPreferences.getString(Constant.KEY_PICTURE_SIZE, Constant.VALUE_SIZE_1080P);
 		if (pictureSize.equals(Constant.VALUE_SIZE_480P)) {
-			mWidthL = 640;
-			mHeightL = 480;
+			mWidthPicture = 640;
+			mHeightPicture = 480;
 		} else if (pictureSize.equals(Constant.VALUE_SIZE_600P)) {
-			mWidthL = 800;
-			mHeightL = 600;
+			mWidthPicture = 800;
+			mHeightPicture = 600;
 		} else if (pictureSize.equals(Constant.VALUE_SIZE_720P)) {
-			mWidthL = 1280;
-			mHeightL = 720;
+			mWidthPicture = 1280;
+			mHeightPicture = 720;
 		} else if (pictureSize.equals(Constant.VALUE_SIZE_1080P)) {
-			mWidthL = 1920;
-			mHeightL = 1080;
+			mWidthPicture = 1920;
+			mHeightPicture = 1080;
 		}
 		mSharedPreferences.getInt(Constant.KEY_RECORD_TIME, 5);
 	}
@@ -254,28 +257,28 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 					break;
 
 				case R.id.iv_camera_select:
-					if (mHandlerL != null && mHandlerR != null) {
-						if (!mHandlerL.isOpened() || !mHandlerR.isOpened()) {
+					if (mHandlerPicture != null && mHandlerRecord != null) {
+						if (!mHandlerPicture.isOpened() || !mHandlerRecord.isOpened()) {
 							CameraDialog.showDialog(PreviewActivity.this);
 
 						} else {
-							mHandlerL.close();
-							mHandlerR.close();
+							mHandlerPicture.close();
+							mHandlerRecord.close();
 							setCameraButton();
 						}
 					}
 					break;
 
 				case R.id.capture_button_L:
-					if (mHandlerL != null) {
-						if (mHandlerL.isOpened()) {
+					if (mHandlerPicture != null) {
+						if (mHandlerPicture.isOpened()) {
 							if (checkPermissionWriteExternalStorage()) {
 								if (MemoryUtil.getSystemAvailableSize() < MEMORY_LIMIT) {
 									Toast.makeText(PreviewActivity.this, "内存不足, 无法拍照!!!", Toast.LENGTH_LONG).show();
 									break;
 								}
 								String picturePath = FileUtil.getPictureFile(Environment.DIRECTORY_DCIM, ".jpg").getAbsolutePath();
-								mUVCCameraViewL.takePicture(mWidthL, mHeightL, picturePath);
+								mUVCCameraViewPicture.takePicture(mWidthPicture, mHeightPicture, picturePath);
 								Log.d(TAG, "Picture : " + picturePath);
 								Toast.makeText(PreviewActivity.this, "拍照", Toast.LENGTH_SHORT).show();
 							}
@@ -284,17 +287,17 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 					break;
 
 				case R.id.capture_button_R:
-					if (mHandlerR != null) {
-						if (mHandlerR.isOpened()) {
+					if (mHandlerRecord != null) {
+						if (mHandlerRecord.isOpened()) {
 							if (checkPermissionWriteExternalStorage() && checkPermissionAudio()) {
-								if (!mUVCCameraViewR.isRecording()) {
+								if (!mUVCCameraViewRecord.isRecording()) {
 									if (MemoryUtil.getSystemAvailableSize() < MEMORY_LIMIT) {
 										Toast.makeText(PreviewActivity.this, "内存不足, 无法录像!!!", Toast.LENGTH_LONG).show();
 										break;
 									}
-									mCaptureButtonR.setImageResource(R.drawable.record_off);
+									mButtonRecord.setImageResource(R.drawable.record_off);
 									String videoPath = FileUtil.getVideoFile(Environment.DIRECTORY_DCIM, ".mp4").getAbsolutePath();
-									mUVCCameraViewR.startRecord(mWidthR, mHeightR, videoPath);
+									mUVCCameraViewRecord.startRecord(mWidthRecord, mHeightRecord, videoPath);
 									mCHRecordTime.setBase(SystemClock.elapsedRealtime());
 									mCHRecordTime.setVisibility(View.VISIBLE);
 									mCHRecordTime.start();
@@ -304,8 +307,8 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 									mHandler.post(mMemRunnable);
 
 								} else {
-									mCaptureButtonR.setImageResource(R.drawable.record_onn);	// return to default color
-									mUVCCameraViewR.stopRecord();
+									mButtonRecord.setImageResource(R.drawable.record_onn);	// return to default color
+									mUVCCameraViewRecord.stopRecord();
 									mCHRecordTime.stop();
 									mCHRecordTime.setVisibility(View.INVISIBLE);
 									Toast.makeText(PreviewActivity.this, "录像停止", Toast.LENGTH_LONG).show();
@@ -342,27 +345,27 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 					}
 				}
 			}
-			if (!mHandlerR.isOpened() && device.getProductName().trim().equals(Constant.CAMERA_PRODUCT_NAME_FOR_RECORD)) {
+			if (!mHandlerRecord.isOpened() /*&& device.getProductName().trim().equals(Constant.CAMERA_PRODUCT_NAME_FOR_RECORD)*/) {
 				if (DEBUG) Log.v(TAG, "onConnect: mHandler R");
-				mHandlerR.open(ctrlBlock);
-				final SurfaceTexture st = mUVCCameraViewR.getSurfaceTexture();
-				mHandlerR.startPreview(new Surface(st));
+				mHandlerRecord.open(ctrlBlock);
+				final SurfaceTexture st = mUVCCameraViewRecord.getSurfaceTexture();
+				mHandlerRecord.startPreview(new Surface(st));
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						mCaptureButtonR.setVisibility(View.VISIBLE);
+						mButtonRecord.setVisibility(View.VISIBLE);
 					}
 				});
 
-			} else if (!mHandlerL.isOpened() /*&& device.getProductName().trim().equals(Constant.CAMERA_PRODUCT_NAME_FOR_PICTURE)*/) {
-				if (DEBUG) Log.v(TAG, "onConnect: mHandlerL ");
-				mHandlerL.open(ctrlBlock);
-				final SurfaceTexture st = mUVCCameraViewL.getSurfaceTexture();
-				mHandlerL.startPreview(new Surface(st));
+			} else if (!mHandlerPicture.isOpened() /*&& device.getProductName().trim().equals(Constant.CAMERA_PRODUCT_NAME_FOR_PICTURE)*/) {
+				if (DEBUG) Log.v(TAG, "onConnect: mHandlerPicture ");
+				mHandlerPicture.open(ctrlBlock);
+				final SurfaceTexture st = mUVCCameraViewPicture.getSurfaceTexture();
+				mHandlerPicture.startPreview(new Surface(st));
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						mCaptureButtonL.setVisibility(View.VISIBLE);
+						mButtonPicture.setVisibility(View.VISIBLE);
 					}
 				});
 			}
@@ -371,27 +374,27 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 		@Override
 		public void onDisconnect(final UsbDevice device, final UsbControlBlock ctrlBlock) {
 			if (DEBUG) Log.v(TAG, "onDisconnect:");
-			if ((mHandlerL != null) && !mHandlerL.isEqual(device)) {
+			if ((mHandlerPicture != null) && !mHandlerPicture.isEqual(device)) {
 				queueEvent(new Runnable() {
 					@Override
 					public void run() {
-						mHandlerL.close();
-						if (mLeftPreviewSurface != null) {
-							mLeftPreviewSurface.release();
-							mLeftPreviewSurface = null;
+						mHandlerPicture.close();
+						if (mPreviewSurfacePicture != null) {
+							mPreviewSurfacePicture.release();
+							mPreviewSurfacePicture = null;
 						}
 						setCameraButton();
 					}
 				}, 0);
 
-			} else if ((mHandlerR != null) && !mHandlerR.isEqual(device)) {
+			} else if ((mHandlerRecord != null) && !mHandlerRecord.isEqual(device)) {
 				queueEvent(new Runnable() {
 					@Override
 					public void run() {
-						mHandlerR.close();
-						if (mRightPreviewSurface != null) {
-							mRightPreviewSurface.release();
-							mRightPreviewSurface = null;
+						mHandlerRecord.close();
+						if (mPreviewSurfaceRecord != null) {
+							mPreviewSurfaceRecord.release();
+							mPreviewSurfaceRecord = null;
 						}
 						setCameraButton();
 					}
@@ -436,11 +439,11 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if ((mHandlerL != null) && !mHandlerL.isOpened() && (mCaptureButtonL != null)) {
-					mCaptureButtonL.setVisibility(View.INVISIBLE);
+				if ((mHandlerPicture != null) && !mHandlerPicture.isOpened() && (mButtonPicture != null)) {
+					mButtonPicture.setVisibility(View.INVISIBLE);
 				}
-				if ((mHandlerR != null) && !mHandlerR.isOpened() && (mCaptureButtonR != null)) {
-					mCaptureButtonR.setVisibility(View.INVISIBLE);
+				if ((mHandlerRecord != null) && !mHandlerRecord.isOpened() && (mButtonRecord != null)) {
+					mButtonRecord.setVisibility(View.INVISIBLE);
 				}
 			}
 		}, 0);
@@ -486,10 +489,10 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 			if (activity != null) {
 				switch (msg.what) {
 					case H_AUTO_START_RECORD:
-						if (activity.mHandlerR != null && activity.mHandlerR.isOpened() && !activity.mUVCCameraViewR.isRecording()) {
-							activity.mCaptureButtonR.setImageResource(R.drawable.record_off);
+						if (activity.mHandlerRecord != null && activity.mHandlerRecord.isOpened() && !activity.mUVCCameraViewRecord.isRecording()) {
+							activity.mButtonRecord.setImageResource(R.drawable.record_off);
                             String videoPath = FileUtil.getVideoFile(Environment.DIRECTORY_DCIM, ".mp4").getAbsolutePath();
-							activity.mUVCCameraViewR.startRecord(activity.mWidthR, activity.mHeightR, videoPath);
+							activity.mUVCCameraViewRecord.startRecord(activity.mWidthRecord, activity.mHeightRecord, videoPath);
 							activity.mCHRecordTime.setBase(SystemClock.elapsedRealtime());
 							activity.mCHRecordTime.setVisibility(View.VISIBLE);
 							activity.mCHRecordTime.start();
@@ -499,9 +502,9 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 						break;
 
 					case H_AUTO_STOP_RECORD:
-						if (activity.mHandlerR != null && activity.mHandlerR.isOpened() && activity.mUVCCameraViewR.isRecording()) {
-							activity.mCaptureButtonR.setImageResource(R.drawable.record_onn);	// return to default color
-							activity.mUVCCameraViewR.stopRecord();
+						if (activity.mHandlerRecord != null && activity.mHandlerRecord.isOpened() && activity.mUVCCameraViewRecord.isRecording()) {
+							activity.mButtonRecord.setImageResource(R.drawable.record_onn);	// return to default color
+							activity.mUVCCameraViewRecord.stopRecord();
 							activity.mCHRecordTime.stop();
 							activity.mCHRecordTime.setVisibility(View.INVISIBLE);
 							Toast.makeText(activity, "本段录像时间到,停止录像.", Toast.LENGTH_LONG).show();
@@ -517,10 +520,10 @@ public final class PreviewActivity extends BaseActivity implements CameraDialog.
 	private Runnable mMemRunnable = new Runnable() {
 		@Override
 		public void run() {
-			if (mUVCCameraViewR.isRecording()) {
+			if (mUVCCameraViewRecord.isRecording()) {
 				if (MemoryUtil.getSystemAvailableSize() < MEMORY_LIMIT) {
-					mCaptureButtonR.setImageResource(R.drawable.record_onn);	// return to default color
-                    mUVCCameraViewR.stopRecord();
+					mButtonRecord.setImageResource(R.drawable.record_onn);	// return to default color
+                    mUVCCameraViewRecord.stopRecord();
 					mCHRecordTime.stop();
 					mCHRecordTime.setVisibility(View.INVISIBLE);
 					Toast.makeText(PreviewActivity.this, "内存不足, 录像停止", Toast.LENGTH_LONG).show();
